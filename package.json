@@ -1,0 +1,20 @@
+{
+  "name": "gling",
+  "version": "1.0.0",
+  "description": "The easy way to make your site go 'gling'!",
+  "main": "src/app.js",
+  "directories": {
+    "test": "test",
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "nurih",
+  "license": "ISC",
+  "dependencies": {
+    "jest": "^22.0.4",
+    "mongodb": "^3.0.1"
+  },
+  "devDependencies": {}
+}
