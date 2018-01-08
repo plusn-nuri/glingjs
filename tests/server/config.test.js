@@ -1,6 +1,6 @@
 "use strict";
 
-var Config = require("../../src/app/config");
+var Config = require('../../demo/config');
 
 describe("Config", ()=>{
     it("Has connection string",()=>{

@@ -1,6 +1,6 @@
 "use strict";
-var ChangeType = require("../../src/app/changeType");
-var Gling = require("../../src/app/gling");
+var ChangeType = require("../../src/server/changeType");
+var Gling = require("../../src/server/gling");
 
 describe("Gling", () => {
 
@@ -9,7 +9,7 @@ describe("Gling", () => {
         when: [ChangeType.create],
         filter: { number: { $mod: [3, 2] } },
         fields: ['name'],
-        topics: ['user-registered', 'new-user']
+        topic: 'user-registered'
     };
 
     it("Creates empty subscriptions", () => {
@@ -23,10 +23,11 @@ describe("Gling", () => {
 
             expect(actual).toBe(undefined);
         })
+
         it("returns $match if  filter present", () => {
             var actual = instance().createDocumentFilter({ filter: sampleOptions1.filter });
 
-            expect(actual.$match).toEqual(sampleOptions1.filter);
+            expect(actual.$match['fullDocument.number']).toEqual(sampleOptions1.filter.number);
         })
 
     })
@@ -37,6 +38,7 @@ describe("Gling", () => {
 
             expect(actual).toBe(undefined);
         })
+
         it("returns projected fields for fields specified", () => {
             var actual = instance().createProjection({ fields: ['alpha', 'beta.gamma', 'foo[2].id'] });
 
@@ -71,6 +73,7 @@ describe("Gling", () => {
 
             expect(actual.fullDocument).toBe('updateLookup');
         })
+
         it("Sets 'fullDocument' to 'default' when fields empty", () => {
             var sample = sampleOptions1;
 
@@ -83,14 +86,72 @@ describe("Gling", () => {
     })
 
     describe("fix filter naming", () => {
-        it("adds marklar", () => {
+        it("Adds 'fullDocument' prefix to fields that need it", () => {
             var actual = instance().ensureDocumentFilterFieldNaming({ name: 'bob' });
 
-            expect(actual.marklar_name).toBe('bob')
+            expect(actual['fullDocument.name']).toBe('bob')
         })
+
+        it("Leaves fields already prefixed with 'fullDocument' as is", () => {
+            var actual = instance().ensureDocumentFilterFieldNaming({ 'fullDocument.something': 3 });
+
+            expect(actual).toEqual({ 'fullDocument.something': 3 })
+        })
+
+        it("fixes fields in $or clause", () => {
+            var actual = instance().ensureDocumentFilterFieldNaming({ $or: [{ foo: 1 }, { bar: { $gt: 2 } }] });
+
+            expect(actual).toEqual({ $or: [{ 'fullDocument.foo': 1 }, { 'fullDocument.bar': { $gt: 2 } }] })
+        })
+    })
+
+    describe("fixKeyName", () => {
+        it("returns same key if operator", () => {
+            expect(Gling.prototype.fixKeyName("$or")).toBe("$or");
+        })
+        it("returns same key if already prefixed with 'fullDocument.'", () => {
+            expect(Gling.prototype.fixKeyName("fullDocument.foo")).toBe("fullDocument.foo");
+        })
+        it("fixes name", () => {
+            expect(Gling.prototype.fixKeyName("foo")).toBe("fullDocument.foo");
+        })
+    })
+
+    describe("String.isOperatorName", () => {
+        it("true when starts with $", () => {
+            expect("$or".isOperatorName()).toBe(true);
+        })
+
+        it("false when starts with $", () => {
+            expect("blah".isOperatorName()).toBe(false);
+        })
+
+    })
+
+    describe("String.isFullDocumentPrefixed", () => {
+        it("true when starts with 'fullDocument.'", () => {
+            expect("fullDocument.bar".isFullDocumentPrefixed()).toBe(true);
+        })
+
+        it("false when starts without 'fullDocument.'", () => {
+            expect("full".isFullDocumentPrefixed()).toBe(false);
+        })
+
+    })
+    describe("Gling.getEventPayload", () => {
+        it("Returns value of 'fullDocument'", () => {
+            var subject = { fullDocument: { _id: 1, 'name': 'bob' }, documentKey: { _id: "abc" } };
+            expect(instance().getEventPayload(subject)).toEqual(subject.fullDocument);
+        })
+
+        it("Returns value of 'documentKey' when no 'fullDocument' value", () => {
+            var subject = {  documentKey: { _id: "abc" } };
+            expect(instance().getEventPayload(subject)).toEqual(subject.documentKey);
+        })
+
     })
 })
 
 function instance() {
-    return new Gling({});
+    return new Gling({ listeners: [] });
 }

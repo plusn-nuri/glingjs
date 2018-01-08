@@ -1,8 +1,8 @@
 {
   "name": "gling",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "The easy way to make your site go 'gling'!",
-  "main": "src/app.js",
+  "main": "demo/app.js",
   "directories": {
     "test": "test",
     "lib": "lib"
@@ -13,8 +13,10 @@
   "author": "nurih",
   "license": "ISC",
   "dependencies": {
-    "jest": "^22.0.4",
-    "mongodb": "^3.0.1"
+    "mongodb": "^3.0.1",
+    "websocket": "^1.0.25"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "jest": "^22.0.4"
+  }
 }
