@@ -2,7 +2,7 @@
   "name": "gling",
   "version": "0.0.1",
   "description": "The easy way to make your site go 'gling'!",
-  "main": "demo/app.js",
+  "main": "demo/server.js",
   "directories": {
     "test": "test",
     "lib": "lib"

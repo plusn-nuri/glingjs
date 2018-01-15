@@ -26,7 +26,7 @@ var ClientManager = function ClientManager(config) {
         const message = (typeof(payload) === "string") && payload || JSON.stringify(payload);
         clients.forEach(c => {
             if (c.connected) {
-                c.sendUTF(payload);
+                c.sendUTF(message);
             }
         })
     }

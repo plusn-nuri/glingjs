@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+
+    <script type="text/javascript">
+
+        function SocketClient() {
+           
+            var ws = new WebSocket("ws://localhost:8080/gling", "meme-cat");
+
+            ws.onopen = function () {
+                document.getElementById('status').innerHTML = "Websocket connected.";
+            };
+
+            ws.onmessage = function (evt) {
+                var li = document.createElement("li");
+                var img = document.createElement("img");
+
+                img.setAttribute('src','http://thecatapi.com/api/images/get?format=src&type=png&size=small&_v='+ Math.random());
+                li.appendChild(img) 
+                
+                var caption = document.createElement("label");
+                caption.innerHTML = JSON.parse(evt.data)['caption'] || "LOL";
+                
+                li.appendChild(caption);
+                
+                document.getElementById('notifications').appendChild(li);
+            };
+
+            ws.onclose = function () {
+                document.getElementById('status').innerHTML = "Websocket closed.";
+            };
+
+            window.onbeforeunload = function (event) {
+                ws.close();
+            };
+        }
+    </script>
+
+</head>
+
+<body>
+
+    <div id="main">
+        <button onclick="SocketClient();">Start Socket</button>
+        <h3 id='status'>Not connected.</h3>
+        <ul id="notifications">
+
+        </ul>
+    </div>
+
+</body>
+
+</html>

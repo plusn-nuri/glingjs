@@ -1,17 +1,24 @@
 "use strict";
 
-var config = require('./config');
+const config = require('./config');
 
-var Gling = require('../src/server/gling');
-var ClientManager = require('../src/server/clientManager');
+const Gling = require('../src/server/gling');
+const ClientManager = require('../src/server/clientManager');
 
-var http = require('http');
-var WebSocketServer = require('websocket').server;
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const WebSocketServer = require('websocket').server;
 
 // set up websocket
 var server = http.createServer((request, response) => {
     console.log('Request for ' + request.url);
-    response.end('Nothing interesting');
+
+    const fileName = path.join(__dirname, 'index.html');
+    fs.readFile(fileName, 'utf8', (err, content) => {
+        response.writeHead(200, { 'Content-Type': 'text/html' , 'Content-Length': content.length});
+        response.end(content);
+    });
 });
 
 server.listen(8080, function (s) {
@@ -26,14 +33,13 @@ var webSocketServer = new WebSocketServer({
 var clientManager = new ClientManager(config);
 
 webSocketServer.on('request', (request) => {
-
+    
     var { topic, connection } = clientManager.registerClientConnection(request);
 
     console.log(`Got request from ${connection.remoteAddress} for topic "${topic}".`);
-
 });
 
-var hook = (topic, payload)=>{
+var hook = (topic, payload) => {
     console.log(`Broadcasting to clients of ${topic}`, payload);
     clientManager.broadcast(topic, payload);
 }
