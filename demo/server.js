@@ -16,7 +16,7 @@ var server = http.createServer((request, response) => {
 
     const fileName = path.join(__dirname, 'index.html');
     fs.readFile(fileName, 'utf8', (err, content) => {
-        response.writeHead(200, { 'Content-Type': 'text/html' , 'Content-Length': content.length});
+        response.writeHead(200, { 'Content-Type': 'text/html', 'Content-Length': content.length });
         response.end(content);
     });
 });
@@ -33,7 +33,13 @@ var webSocketServer = new WebSocketServer({
 var clientManager = new ClientManager(config);
 
 webSocketServer.on('request', (request) => {
-    
+    if (!request.origin.isOriginAllowed(config.allowedOrigins)) {
+        // Make sure we only accept requests from an allowed origin
+        request.reject();
+        console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
+        return;
+    }
+
     var { topic, connection } = clientManager.registerClientConnection(request);
 
     console.log(`Got request from ${connection.remoteAddress} for topic "${topic}".`);
@@ -43,6 +49,9 @@ var hook = (topic, payload) => {
     console.log(`Broadcasting to clients of ${topic}`, payload);
     clientManager.broadcast(topic, payload);
 }
+
+
+
 var gling = new Gling(config);
 
 gling.start(hook)

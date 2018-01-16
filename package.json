@@ -1,17 +1,21 @@
 {
   "name": "gling",
   "version": "0.0.1",
-  "description": "The easy way to make your site go 'gling'!",
-  "main": "demo/server.js",
+  "description": "The super easy way to make your website chime whenever something interesting happens.",
+  "main": "gling.js",
   "directories": {
     "test": "test",
-    "lib": "lib"
+    "lib": "./src/server"
   },
   "scripts": {
+    "run": "node demo/server.js",
     "test": "jest"
   },
-  "author": "nurih",
-  "license": "ISC",
+  "author": {
+    "name": "nuri",
+    "url": "https://github.com/plusn-nuri/glingjs"
+  },
+  "license": "MIT",
   "dependencies": {
     "mongodb": "^3.0.1",
     "websocket": "^1.0.25"

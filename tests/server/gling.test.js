@@ -39,10 +39,16 @@ describe("Gling", () => {
             expect(actual).toBe(undefined);
         })
 
-        it("returns projected fields for fields specified", () => {
-            var actual = instance().createProjection({ fields: ['alpha', 'beta.gamma', 'foo[2].id'] });
+        it("prepends field name with 'fullDocument.' if field didn't have it", () => {
+            var actual = instance().createProjection({ fields: ['needsIt', 'fullDocument.alreadyGood'] });
 
-            expect(actual).toEqual({ $project: { 'alpha': 1, 'beta.gamma': 1, 'foo[2].id': 1 } });
+            expect(actual).toEqual({ $project: { 'fullDocument.needsIt': 1, 'fullDocument.alreadyGood': 1 } });
+        })
+
+        it("returns projected fields for fields specified", () => {
+            var actual = instance().createProjection({ fields: ['regular', 'foo[2].id'] });
+
+            expect(actual).toEqual({ $project: { 'fullDocument.regular': 1, 'fullDocument.foo[2].id': 1 } });
         })
     })
 
@@ -138,6 +144,27 @@ describe("Gling", () => {
         })
 
     })
+    describe("String.isOriginAllowed", () => {
+        it("true when list has '*' in it", () => {
+            expect("https://example.com/gling".isOriginAllowed(['abc','*'])).toBe(true);
+        })
+        it("true when list has specified origin in it", () => {
+            expect('https://example.com/gling'.isOriginAllowed(['https://example.com/gling'])).toBe(true);
+        })
+        
+        it("false when list empty", () => {
+            expect('https://example.com/gling'.isOriginAllowed([])).toBe(false);
+        })
+        it("false when no list passed", () => {
+            expect('https://example.com/gling'.isOriginAllowed(null)).toBe(false);
+        })
+        it("false when argument not array", () => {
+            expect('https://example.com/gling'.isOriginAllowed('not_an_array')).toBe(false);
+        })
+
+
+    })
+
     describe("Gling.getEventPayload", () => {
         it("Returns value of 'fullDocument'", () => {
             var subject = { fullDocument: { _id: 1, 'name': 'bob' }, documentKey: { _id: "abc" } };
@@ -145,7 +172,7 @@ describe("Gling", () => {
         })
 
         it("Returns value of 'documentKey' when no 'fullDocument' value", () => {
-            var subject = {  documentKey: { _id: "abc" } };
+            var subject = { documentKey: { _id: "abc" } };
             expect(instance().getEventPayload(subject)).toEqual(subject.documentKey);
         })
 

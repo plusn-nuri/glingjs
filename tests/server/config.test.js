@@ -1,12 +1,13 @@
 "use strict";
 
-var Config = require('../../demo/config');
+const config = require('../../demo/config');
 
 describe("Config", ()=>{
     it("Has connection string",()=>{
-        expect(Config.connection).toBeDefined();
+        expect(config.connection).toBeDefined();
     })
     it("Has listener array",()=>{
-        expect(Config.listeners[0]).toBeDefined();
+        expect(config.listeners[0]).toBeDefined();
     })
+    
 })

@@ -11,15 +11,22 @@ var Gling = function Gling(config) {
         // target collection 
         var subscription = {
             collection: listener.collection,
-            topic: listener.topic
+            topic: listener.topic,
         };
 
         // which change types
-        subscription.filters = [this.createOpTypeFilter(listener)];
+        subscription.pipeline = [this.createOpTypeFilter(listener)];
 
         // document filter if any
         var documentFilter = this.createDocumentFilter(listener);
-        if (documentFilter) { subscription.filters.push(documentFilter); }
+        if (documentFilter) { subscription.pipeline.push(documentFilter); }
+
+        // projection if any
+        var projection = this.createProjection(listener);
+        if (projection) subscription.pipeline.push(projection);
+
+        // options
+        subscription.options = this.createOptions(listener);
 
         // register this subscription
         this.subscriptions.push(subscription);
@@ -41,7 +48,7 @@ var Gling = function Gling(config) {
         var collection = db.collection(subscription.collection);
         console.log(JSON.stringify(subscription));
 
-        var changeStream = collection.watch(subscription.filters, subscription.options);
+        var changeStream = collection.watch(subscription.pipeline, subscription.options);
 
         changeStream.on('change', data => {
             hook(subscription.topic, Gling.prototype.getEventPayload(data));
@@ -87,9 +94,9 @@ Gling.prototype.ensureDocumentFilterFieldNaming = function (filter) {
 }
 
 Gling.prototype.createProjection = function (definition) {
-    if (definition.fields && definition.fields[0]) {
+    if (definition.fields && Array.isArray(definition.fields)) {
         var result = {}
-        definition.fields.forEach(f => { result[f] = 1 })
+        definition.fields.forEach(field => { result[Gling.prototype.fixKeyName(field)] = 1 })
         return { $project: result };
     }
     return undefined;
@@ -127,6 +134,13 @@ Gling.prototype.getEventPayload = function (change) {
 
 String.prototype.isOperatorName = function () { return this.charAt(0) === '$'; }
 String.prototype.isFullDocumentPrefixed = function () { return this.slice(0, 13) === 'fullDocument.'; }
+String.prototype.isOriginAllowed = function (allowedOrigins) {
+    var canonicalOrigin = this.toLowerCase();
+    if (!allowedOrigins || !Array.isArray(allowedOrigins)) { return false; }
+    
+    return allowedOrigins.some(e =>
+        (e === '*' || e.toLowerCase() === this));
+}
 
 module.exports = Gling;
 
