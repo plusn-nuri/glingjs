@@ -8,7 +8,7 @@
     "lib": "./src/server"
   },
   "scripts": {
-    "run": "node demo/server.js",
+    "start": "node demo/server.js",
     "test": "jest"
   },
   "author": {
