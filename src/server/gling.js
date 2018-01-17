@@ -33,10 +33,12 @@ var Gling = function Gling(config) {
     });
 
     this.start = function (hook) {
-        var dbName = this.config.connection.match(/\/([^/?]+)\?/)[1];
+        const connection = process.env.MONGODB_CONNECTION || this.config.connection;
+
+        const dbName = connection.match(/\/\/.+\/([^/?]+)/)[1];
 
         return MongoClient
-            .connect(this.config.connection)
+            .connect(connection)
             .then(client => {
                 this.subscriptions.forEach(sub =>
                     createChangeStreamListener(client.db(dbName), sub, hook));
