@@ -1,14 +1,15 @@
 {
   "name": "gling",
-  "version": "0.0.1",
+  "version": "0.38.1",
   "description": "The super easy way to make your website chime whenever something interesting happens.",
   "main": "gling.js",
   "directories": {
     "test": "test",
-    "lib": "./src/server"
+    "lib": "./src/server",
+    "example": "./src/demo"
   },
   "scripts": {
-    "start": "node demo/server.js",
+    "start": "node src/demo/server.js",
     "test": "jest"
   },
   "author": {

@@ -2,8 +2,8 @@
 
 const config = require('./config');
 
-const Gling = require('../src/server/gling');
-const ClientManager = require('../src/server/clientManager');
+const Gling = require('../server/gling');
+const ClientManager = require('../server/clientManager');
 
 const http = require('http');
 const fs = require('fs');
@@ -33,7 +33,7 @@ var webSocketServer = new WebSocketServer({
 var clientManager = new ClientManager(config);
 
 webSocketServer.on('request', (request) => {
-    if (!request.origin.isOriginAllowed(config.allowedOrigins)) {
+    if (!(request.origin || request.host).isOriginAllowed(config.allowedOrigins)) {
         // Make sure we only accept requests from an allowed origin
         request.reject();
         console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');

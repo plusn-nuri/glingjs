@@ -7,12 +7,12 @@ client.on('connectFailed', function(error) {
 });
 
 client.on('connect', function(connection) {
-    console.log('WebSocket Client Connected');
+    console.log('Connected');
     connection.on('error', function(error) {
         console.log("Connection Error: " + error.toString());
     });
     connection.on('close', function() {
-        console.log('echo-protocol Connection Closed');
+        console.log('Connection Closed');
     });
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
@@ -24,4 +24,4 @@ client.on('connect', function(connection) {
     });
 });
 
-client.connect('ws://localhost:8080/mongodb-change-stream','meme-cat');
+client.connect('ws://localhost:8080/gling','meme-cat');
