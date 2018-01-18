@@ -1,6 +1,6 @@
 "use strict";
 
-const config = require('../../demo/config');
+const config = require('../../src/demo/config');
 
 describe("Config", ()=>{
     it("Has connection string",()=>{
