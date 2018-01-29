@@ -1,5 +1,5 @@
 'user strict';
-var ChangeType = require('../server/changeType');
+var ChangeType = require('../src/changeType');
 
 const Config = {
     connection: 'mongodb://localhost:27017/gling?replSet=r1',

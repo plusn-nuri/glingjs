@@ -1,6 +1,6 @@
 "use strict";
 
-const ClientManager = require("../../src/server/clientManager");
+const ClientManager = require("../../src/clientManager");
 
 describe("ClientManager", () => {
     var config = {

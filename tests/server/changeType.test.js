@@ -1,4 +1,4 @@
-var ChangeType = require("../../src/server/changeType");
+var ChangeType = require("../../src/changeType");
 
 describe('Change Type', () => {
   test('create is 0', () => {

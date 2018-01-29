@@ -1,15 +1,15 @@
 {
   "name": "gling",
-  "version": "0.38.1",
+  "version": "0.38.2",
   "description": "The super easy way to make your website chime whenever something interesting happens.",
   "main": "gling.js",
   "directories": {
-    "test": "test",
-    "lib": "./src/server",
-    "example": "./src/demo"
+    "test": "./test",
+    "lib": "./src",
+    "example": "./demo"
   },
   "scripts": {
-    "start": "node src/demo/server.js",
+    "start": "node demo/server.js",
     "test": "jest"
   },
   "author": {
@@ -23,5 +23,12 @@
   },
   "devDependencies": {
     "jest": "^22.0.4"
-  }
+  },
+  "keywords": [
+    "gling",
+    "change-streams",
+    "mongo",
+    "mongodb",
+    "oplog"
+  ]
 }
