@@ -77,7 +77,7 @@ Inclusion of the wildcard origin __'*'__ causes Gling to accept __any__ request 
 
 ``` javascript
 'user strict';
-var ChangeType = require('./changeType');
+var ChangeType = require('gling').ChangeType;
 
 const Config = {
     connection: 'mongodb://localhost:27017/gling?replSet=r1',
@@ -110,8 +110,9 @@ Import the required libraries, and any others you may wish.
 "use strict";
 
 const config = require('./config');
-const Gling = require('../server/gling');
-const ClientManager = require('../server/clientManager');
+
+const Gling = require('gling').Gling;
+const ClientManager = require('gling').ClientManager;
 const http = require('http');
 const WebSocketServer = require('websocket').server;
 ```
