@@ -1,6 +1,6 @@
 {
   "name": "gling",
-  "version": "0.38.4",
+  "version": "0.38.6",
   "description": "The super easy way to make your website chime whenever something interesting happens.",
   "main": "src/index.js",
   "directories": {
@@ -28,5 +28,9 @@
     "mongo",
     "mongodb",
     "oplog"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plusn-nuri/glingjs.git"
+  }
 }
