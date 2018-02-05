@@ -2,7 +2,6 @@
 
 var ChangeType = require('./changeType');
 
-
 var ClientManager = function ClientManager(config) {
     this.config = config;
 
@@ -30,8 +29,6 @@ var ClientManager = function ClientManager(config) {
             }
         })
     }
-
-
 }
 
 ClientManager.prototype.removeConnection = function (connection, topic) {

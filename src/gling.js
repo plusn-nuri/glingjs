@@ -2,7 +2,7 @@
 
 var ChangeType = require('./changeType');
 var MongoClient = require('mongodb').MongoClient;
-
+var ClientManager = require('./clientManager');
 var Gling = function Gling(config) {
     this.config = config;
     this.subscriptions = [];
@@ -139,11 +139,15 @@ String.prototype.isFullDocumentPrefixed = function () { return this.slice(0, 13)
 String.prototype.isOriginAllowed = function (allowedOrigins) {
     var canonicalOrigin = this.toLowerCase();
     if (!allowedOrigins || !Array.isArray(allowedOrigins)) { return false; }
-    
+
     return allowedOrigins.some(e =>
         (e === '*' || e.toLowerCase() === this));
 }
 
-module.exports = Gling;
+module.exports = {
+    Gling: Gling, 
+    ClientManager: ClientManager, 
+    ChangeType: ChangeType
+};
 
 

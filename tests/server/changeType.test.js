@@ -1,15 +1,15 @@
 var ChangeType = require("../../src/changeType");
 
 describe('Change Type', () => {
-  test('create is 0', () => {
-    expect(ChangeType.create).toBe(0);
+  test('create is string "create"', () => {
+    expect(ChangeType.create).toBe('create');
   });
 
-  test('update is 1', () => {
-    expect(ChangeType.update).toBe(1);
+  test('update is string "update"', () => {
+    expect(ChangeType.update).toBe('update');
   });
 
-  test('remove is 2', () => {
-    expect(ChangeType.remove).toBe(2);
+  test('remove is string "remove"', () => {
+    expect(ChangeType.remove).toBe('remove');
   });
 });

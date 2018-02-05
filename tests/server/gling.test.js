@@ -1,6 +1,6 @@
 "use strict";
-var ChangeType = require("../../src/changeType");
-var Gling = require("../../src/gling");
+
+const { Gling, ChangeType} = require("../../src/gling");
 
 describe("Gling", () => {
 

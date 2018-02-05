@@ -2,8 +2,7 @@
 
 const config = require('./config');
 
-const Gling = require('gling').Gling;
-const ClientManager = require('gling').ClientManager;
+const { ClientManager, Gling, ChangeType } = require('../src/gling');
 
 const http = require('http');
 const fs = require('fs');

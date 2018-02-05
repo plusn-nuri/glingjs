@@ -1,8 +1,8 @@
-var changeType;
+var ChangeType;
 (function (changeType) {
-    changeType[changeType["create"] = 0] = "create";
-    changeType[changeType["update"] = 1] = "update";
-    changeType[changeType["remove"] = 2] = "remove";
-})(changeType || (changeType = {}));
+    changeType["create"] = "create";
+    changeType["update"] = "update";
+    changeType["remove"] = "remove";
+})(ChangeType || (ChangeType = {}));
 
-module.exports = changeType;
+module.exports = ChangeType;
