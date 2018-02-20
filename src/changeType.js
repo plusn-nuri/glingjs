@@ -1,8 +1,7 @@
-var ChangeType;
-(function (changeType) {
-    changeType["create"] = "create";
-    changeType["update"] = "update";
-    changeType["remove"] = "remove";
-})(ChangeType || (ChangeType = {}));
+const ChangeType = { 
+    "create": "create",
+    "update": "update",
+    "remove": "remove"
+};
 
 module.exports = ChangeType;
