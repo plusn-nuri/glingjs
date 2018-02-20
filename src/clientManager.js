@@ -5,10 +5,10 @@ const ChangeType = require('./changeType');
 class ClientManager {
     constructor(config) {
         this.config = config;
-        this.clientTopicMap = this.createTopicMap(config);
+        this.clientTopicMap = ClientManager.createTopicMap(config);
     }
 
-    createTopicMap(config) {
+    static createTopicMap(config) {
         const result = config.listeners.reduce((accum, listener) => {
             if (!accum[listener.topic]) { accum[listener.topic] = []; }
             return accum;
@@ -27,9 +27,7 @@ class ClientManager {
         })
     }
 
-    removeConnection(connection, topic, clientTopicMap) {
-        const map = clientTopicMap || this.clientTopicMap;
-
+    static removeConnection(connection, topic, map) {
         const offset = map[topic].findIndex(e => e == connection);
 
         if (offset !== -1) {
@@ -44,7 +42,7 @@ class ClientManager {
         var connection = request.accept(topic, request.origin);
 
         connection.on('close', (reasonCode, description) => {
-            removeConnection(connection, topic, map);
+           ClientManager.removeConnection(connection, topic, map);
 
             console.log(`Closed connection  ${connection.remoteAddress} because ${reasonCode} ${description}`);
             connection = null;
