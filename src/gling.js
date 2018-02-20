@@ -1,8 +1,8 @@
 'use strict';
 
-var ChangeType = require('./changeType');
-var MongoClient = require('mongodb').MongoClient;
-var ClientManager = require('./clientManager');
+const ChangeType = require('./changeType');
+const MongoClient = require('mongodb').MongoClient;
+const ClientManager = require('./clientManager');
 class Gling {
 
     constructor(config) {
@@ -11,7 +11,7 @@ class Gling {
 
         this.config.listeners.forEach(listener => {
             // target collection 
-            var subscription = {
+            const subscription = {
                 collection: listener.collection,
                 topic: listener.topic,
             };
@@ -20,11 +20,11 @@ class Gling {
             subscription.pipeline = [this.createOpTypeFilter(listener)];
 
             // document filter if any
-            var documentFilter = this.createDocumentFilter(listener);
+            const documentFilter = this.createDocumentFilter(listener);
             if (documentFilter) { subscription.pipeline.push(documentFilter); }
 
             // projection if any
-            var projection = this.createProjection(listener);
+            const projection = this.createProjection(listener);
             if (projection) subscription.pipeline.push(projection);
 
             // options
@@ -48,11 +48,11 @@ class Gling {
     }
 
     createChangeStreamListener(db, subscription, hook) {
-        var that = this;
-        var collection = db.collection(subscription.collection);
+        
+        const collection = db.collection(subscription.collection);
         console.log(JSON.stringify(subscription));
 
-        var changeStream = collection.watch(subscription.pipeline, subscription.options);
+        const changeStream = collection.watch(subscription.pipeline, subscription.options);
 
         changeStream.on('change', data => {
             hook(subscription.topic, Gling.getEventPayload(data));
@@ -78,17 +78,17 @@ class Gling {
     }
 
     static ensureDocumentFilterFieldNaming(filter) {
-        var result = {};
+        const result = {};
 
         for (var key in filter) {
-            var newKey;
-            var value = filter[key];
+            let newKey;
+            let value = filter[key];
             if (this.isOperatorName(key)) {
                 newKey = key;
                 value = filter[key].map(entry => Gling.ensureDocumentFilterFieldNaming(entry))
             }
             else {
-                var newKey = this.fixKeyName(key)
+                newKey = this.fixKeyName(key)
                 result[newKey] = filter[key];
             }
             result[newKey] = value;
@@ -99,7 +99,7 @@ class Gling {
 
     static createProjection(definition) {
         if (definition.fields && Array.isArray(definition.fields)) {
-            var result = {}
+            const result = {}
             definition.fields.forEach(field => { result[Gling.fixKeyName(field)] = 1 })
             return { $project: result };
         }
@@ -107,7 +107,7 @@ class Gling {
     }
 
     static createOpTypeFilter(definition) {
-        var result = { $match: { operationType: { $in: [] } } };
+        const result = { $match: { operationType: { $in: [] } } };
         definition.when.forEach(entry => {
             if (entry == ChangeType.create) { result.$match.operationType.$in.push('insert') }
             if (entry == ChangeType.update) {
@@ -140,7 +140,7 @@ class Gling {
     static isFullDocumentPrefixed(str) { return str.slice(0, 13) === 'fullDocument.'; }
 
     static isOriginAllowed(origin, allowedOrigins) {
-        var canonicalOrigin = origin.toLowerCase();
+        const canonicalOrigin = origin.toLowerCase();
         if (!allowedOrigins || !Array.isArray(allowedOrigins)) { return false; }
 
         return allowedOrigins.some(e =>

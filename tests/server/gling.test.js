@@ -91,7 +91,7 @@ describe("Gling", () => {
         })
     })
 
-    describe("fix filter naming", () => {
+    describe("ensureDocumentFilterFieldNaming()", () => {
         it("Adds 'fullDocument' prefix to fields that need it", () => {
             var actual = Gling.ensureDocumentFilterFieldNaming({ name: 'bob' });
 
