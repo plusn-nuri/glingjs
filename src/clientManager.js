@@ -9,12 +9,11 @@ class ClientManager {
     }
 
     createTopicMap(config) {
-        const result = {};
-        config.listeners.forEach(listener => {
+        const result = config.listeners.reduce((accum, listener) => {
+            if (!accum[listener.topic]) { accum[listener.topic] = []; }
+            return accum;
+        }, {});
 
-            result[listener.topic] || (result[listener.topic] = []);
-
-        });
         return result;
     }
 
@@ -28,8 +27,8 @@ class ClientManager {
         })
     }
 
-    removeConnection(connection, topic) {
-        const map = this.clientTopicMap;
+    removeConnection(connection, topic, clientTopicMap) {
+        const map = clientTopicMap || this.clientTopicMap;
 
         const offset = map[topic].findIndex(e => e == connection);
 
@@ -39,14 +38,13 @@ class ClientManager {
     }
 
     registerClientConnection(request, clientTopicMap) {
-        var that = this;
         const map = clientTopicMap || this.clientTopicMap;
         const topic = request.requestedProtocols[0];
 
         var connection = request.accept(topic, request.origin);
 
-        connection.on('close', function (reasonCode, description) {
-            ClientManager.prototype.removeConnection.call(that, connection, topic);
+        connection.on('close', (reasonCode, description) => {
+            removeConnection(connection, topic, map);
 
             console.log(`Closed connection  ${connection.remoteAddress} because ${reasonCode} ${description}`);
             connection = null;
