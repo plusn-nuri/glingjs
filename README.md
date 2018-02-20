@@ -142,7 +142,8 @@ Create a client manager using the configuration. Wire up the incoming Websocket 
 var clientManager = new ClientManager(config);
 
 webSocketServer.on('request', (request) => {
-    if (!(request.origin || request.host).isOriginAllowed(config.allowedOrigins)) {
+    const origin = (request.origin || request.host);
+    if (!ClientManager.isOriginAllowed(origin, config.allowedOrigins)) {
         // Make sure we only accept requests from an allowed origin
         request.reject();
         console.log(`Rejected  ${(request.origin || request.host)}` );

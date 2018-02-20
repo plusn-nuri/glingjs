@@ -17,18 +17,18 @@ class Gling {
             };
 
             // which change types
-            subscription.pipeline = [this.createOpTypeFilter(listener)];
+            subscription.pipeline = [Gling.createOpTypeFilter(listener)];
 
             // document filter if any
-            const documentFilter = this.createDocumentFilter(listener);
+            const documentFilter = Gling.createDocumentFilter(listener);
             if (documentFilter) { subscription.pipeline.push(documentFilter); }
 
             // projection if any
-            const projection = this.createProjection(listener);
+            const projection = Gling.createProjection(listener);
             if (projection) subscription.pipeline.push(projection);
 
             // options
-            subscription.options = this.createOptions(listener);
+            subscription.options = Gling.createOptions(listener);
 
             // register this subscription
             this.subscriptions.push(subscription);
@@ -43,7 +43,7 @@ class Gling {
             .connect(connection)
             .then(client => {
                 this.subscriptions.forEach(sub =>
-                    createChangeStreamListener(client.db(dbName), sub, hook));
+                    this.createChangeStreamListener(client.db(dbName), sub, hook));
             })
     }
 
@@ -66,9 +66,6 @@ class Gling {
 
         return changeStream;
     }
-
-
-
 
     static createDocumentFilter(definition) {
         if (definition.filter) {
@@ -120,7 +117,7 @@ class Gling {
         return result;
     }
 
-    createOptions(definition) {
+    static createOptions(definition) {
         return {
             fullDocument: definition.fields ? 'updateLookup' : 'default'
         };
@@ -138,14 +135,6 @@ class Gling {
     static isOperatorName(str) { return str.charAt(0) === '$'; }
 
     static isFullDocumentPrefixed(str) { return str.slice(0, 13) === 'fullDocument.'; }
-
-    static isOriginAllowed(origin, allowedOrigins) {
-        const canonicalOrigin = origin.toLowerCase();
-        if (!allowedOrigins || !Array.isArray(allowedOrigins)) { return false; }
-
-        return allowedOrigins.some(e =>
-            (e === '*' || e.toLowerCase() === canonicalOrigin));
-    }
 }
 
 module.exports = Gling;

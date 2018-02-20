@@ -22,7 +22,7 @@ describe("ClientManager", () => {
 
             // act
             ClientManager.removeConnection(subject, 'test-topic', map);
-            
+
             expect(map['test-topic'].find((e) => e == subject)).toBe(undefined);
         })
     })
@@ -47,6 +47,25 @@ describe("ClientManager", () => {
             target.broadcast('test-topic', 'hello');
 
             expect(subject.received).toBe(null);
+        })
+    })
+
+    describe("isOriginAllowed", () => {
+        it("true when list has '*' in it", () => {
+            expect(ClientManager.isOriginAllowed('https://example.com/gling', ['abc', '*'])).toBe(true);
+        })
+        it("true when list has specified origin in it", () => {
+            expect(ClientManager.isOriginAllowed('https://example.com/gling', ['https://example.com/gling'])).toBe(true);
+        })
+
+        it("false when list empty", () => {
+            expect(ClientManager.isOriginAllowed('https://example.com/gling', [])).toBe(false);
+        })
+        it("false when no list passed", () => {
+            expect(ClientManager.isOriginAllowed('https://example.com/gling', null)).toBe(false);
+        })
+        it("false when argument not array", () => {
+            expect(ClientManager.isOriginAllowed('https://example.com/gling', 'not_an_array')).toBe(false);
         })
     })
 })

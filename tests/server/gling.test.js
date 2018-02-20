@@ -75,7 +75,7 @@ describe("Gling", () => {
 
 
         it("Sets 'fullDocument' to 'updateLookup' when fields present", () => {
-            var actual = instance().createOptions(sampleOptions1);
+            var actual = Gling.createOptions(sampleOptions1);
 
             expect(actual.fullDocument).toBe('updateLookup');
         })
@@ -85,7 +85,7 @@ describe("Gling", () => {
 
             delete sample.fields;
 
-            var actual = instance().createOptions(sample);
+            var actual = Gling.createOptions(sample);
 
             expect(actual.fullDocument).toBe('default');
         })
@@ -144,27 +144,7 @@ describe("Gling", () => {
         })
 
     })
-    describe("String.isOriginAllowed", () => {
-        it("true when list has '*' in it", () => {
-            expect(Gling.isOriginAllowed('https://example.com/gling', ['abc', '*'])).toBe(true);
-        })
-        it("true when list has specified origin in it", () => {
-            expect(Gling.isOriginAllowed('https://example.com/gling', ['https://example.com/gling'])).toBe(true);
-        })
-
-        it("false when list empty", () => {
-            expect(Gling.isOriginAllowed('https://example.com/gling', [])).toBe(false);
-        })
-        it("false when no list passed", () => {
-            expect(Gling.isOriginAllowed('https://example.com/gling', null)).toBe(false);
-        })
-        it("false when argument not array", () => {
-            expect(Gling.isOriginAllowed('https://example.com/gling', 'not_an_array')).toBe(false);
-        })
-
-
-    })
-
+   
     describe("Gling.getEventPayload", () => {
         it("Returns value of 'fullDocument'", () => {
             var subject = { fullDocument: { _id: 1, 'name': 'bob' }, documentKey: { _id: "abc" } };

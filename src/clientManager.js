@@ -54,6 +54,14 @@ class ClientManager {
 
         return { topic, connection };
     }
+
+    static isOriginAllowed(origin, allowedOrigins) {
+        const canonicalOrigin = origin.toLowerCase();
+        if (!allowedOrigins || !Array.isArray(allowedOrigins)) { return false; }
+
+        return allowedOrigins.some(e =>
+            (e === '*' || e.toLowerCase() === canonicalOrigin));
+    }
 }
 
 module.exports = ClientManager;

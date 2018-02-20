@@ -2,7 +2,7 @@
 
 const config = require('./config');
 
-const { ClientManager, Gling, ChangeType } = require('../src/gling');
+const { ClientManager, Gling, ChangeType } = require('../src');
 
 const http = require('http');
 const fs = require('fs');
@@ -32,14 +32,15 @@ var webSocketServer = new WebSocketServer({
 var clientManager = new ClientManager(config);
 
 webSocketServer.on('request', (request) => {
-    if (!(request.origin || request.host).isOriginAllowed(config.allowedOrigins)) {
+    const origin = (request.origin || request.host);
+    if (!ClientManager.isOriginAllowed(origin, config.allowedOrigins)) {
         // Make sure we only accept requests from an allowed origin
         request.reject();
         console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
         return;
     }
 
-    var { topic, connection } = clientManager.registerClientConnection(request);
+    const { topic, connection } = clientManager.registerClientConnection(request);
 
     console.log(`Got request from ${connection.remoteAddress} for topic "${topic}".`);
 });
