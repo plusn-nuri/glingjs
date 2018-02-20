@@ -3,36 +3,38 @@
 var ChangeType = require('./changeType');
 var MongoClient = require('mongodb').MongoClient;
 var ClientManager = require('./clientManager');
-var Gling = function Gling(config) {
-    this.config = config;
-    this.subscriptions = [];
+class Gling {
 
-    this.config.listeners.forEach(listener => {
-        // target collection 
-        var subscription = {
-            collection: listener.collection,
-            topic: listener.topic,
-        };
+    constructor(config) {
+        this.config = config;
+        this.subscriptions = [];
 
-        // which change types
-        subscription.pipeline = [this.createOpTypeFilter(listener)];
+        this.config.listeners.forEach(listener => {
+            // target collection 
+            var subscription = {
+                collection: listener.collection,
+                topic: listener.topic,
+            };
 
-        // document filter if any
-        var documentFilter = this.createDocumentFilter(listener);
-        if (documentFilter) { subscription.pipeline.push(documentFilter); }
+            // which change types
+            subscription.pipeline = [this.createOpTypeFilter(listener)];
 
-        // projection if any
-        var projection = this.createProjection(listener);
-        if (projection) subscription.pipeline.push(projection);
+            // document filter if any
+            var documentFilter = this.createDocumentFilter(listener);
+            if (documentFilter) { subscription.pipeline.push(documentFilter); }
 
-        // options
-        subscription.options = this.createOptions(listener);
+            // projection if any
+            var projection = this.createProjection(listener);
+            if (projection) subscription.pipeline.push(projection);
 
-        // register this subscription
-        this.subscriptions.push(subscription);
-    });
+            // options
+            subscription.options = this.createOptions(listener);
 
-    this.start = function (hook) {
+            // register this subscription
+            this.subscriptions.push(subscription);
+        });
+    }
+    start(hook) {
         const connection = process.env.MONGODB_CONNECTION || this.config.connection;
 
         const dbName = connection.match(/\/\/.+\/([^/?]+)/)[1];
@@ -45,7 +47,7 @@ var Gling = function Gling(config) {
             })
     }
 
-    var createChangeStreamListener = function (db, subscription, hook) {
+    createChangeStreamListener(db, subscription, hook) {
         var that = this;
         var collection = db.collection(subscription.collection);
         console.log(JSON.stringify(subscription));
@@ -53,7 +55,7 @@ var Gling = function Gling(config) {
         var changeStream = collection.watch(subscription.pipeline, subscription.options);
 
         changeStream.on('change', data => {
-            hook(subscription.topic, Gling.prototype.getEventPayload(data));
+            hook(subscription.topic, Gling.getEventPayload(data));
         });
 
         changeStream.on('open', () => console.log('Opened ', subscription.collectionName, subscription.when));
@@ -64,90 +66,88 @@ var Gling = function Gling(config) {
 
         return changeStream;
     }
-}
 
 
 
-Gling.prototype.createDocumentFilter = function (definition) {
-    if (definition.filter) {
-        return { $match: Gling.prototype.ensureDocumentFilterFieldNaming(definition.filter) }
-    }
-    return undefined;
-}
 
-Gling.prototype.ensureDocumentFilterFieldNaming = function (filter) {
-    var result = {};
-
-    for (var key in filter) {
-        var newKey;
-        var value = filter[key];
-        if (key.isOperatorName()) {
-            newKey = key;
-            value = filter[key].map(entry => Gling.prototype.ensureDocumentFilterFieldNaming(entry))
+    static createDocumentFilter(definition) {
+        if (definition.filter) {
+            return { $match: Gling.ensureDocumentFilterFieldNaming(definition.filter) }
         }
-        else {
-            var newKey = Gling.prototype.fixKeyName(key)
-            result[newKey] = filter[key];
-        }
-        result[newKey] = value;
+        return undefined;
     }
 
-    return result
-}
+    static ensureDocumentFilterFieldNaming(filter) {
+        var result = {};
 
-Gling.prototype.createProjection = function (definition) {
-    if (definition.fields && Array.isArray(definition.fields)) {
-        var result = {}
-        definition.fields.forEach(field => { result[Gling.prototype.fixKeyName(field)] = 1 })
-        return { $project: result };
+        for (var key in filter) {
+            var newKey;
+            var value = filter[key];
+            if (this.isOperatorName(key)) {
+                newKey = key;
+                value = filter[key].map(entry => Gling.ensureDocumentFilterFieldNaming(entry))
+            }
+            else {
+                var newKey = this.fixKeyName(key)
+                result[newKey] = filter[key];
+            }
+            result[newKey] = value;
+        }
+
+        return result
     }
-    return undefined;
-}
 
-Gling.prototype.createOpTypeFilter = function (definition) {
-    var result = { $match: { operationType: { $in: [] } } };
-    definition.when.forEach(entry => {
-        if (entry == ChangeType.create) { result.$match.operationType.$in.push('insert') }
-        if (entry == ChangeType.update) {
-            result.$match.operationType.$in.push('update', 'replace');
+    static createProjection(definition) {
+        if (definition.fields && Array.isArray(definition.fields)) {
+            var result = {}
+            definition.fields.forEach(field => { result[Gling.fixKeyName(field)] = 1 })
+            return { $project: result };
         }
-        if (entry == ChangeType.remove) {
-            result.$match = { operationType: 'delete' }
-        }
-    })
-    return result;
+        return undefined;
+    }
+
+    static createOpTypeFilter(definition) {
+        var result = { $match: { operationType: { $in: [] } } };
+        definition.when.forEach(entry => {
+            if (entry == ChangeType.create) { result.$match.operationType.$in.push('insert') }
+            if (entry == ChangeType.update) {
+                result.$match.operationType.$in.push('update', 'replace');
+            }
+            if (entry == ChangeType.remove) {
+                result.$match = { operationType: 'delete' }
+            }
+        })
+        return result;
+    }
+
+    createOptions(definition) {
+        return {
+            fullDocument: definition.fields ? 'updateLookup' : 'default'
+        };
+    }
+
+    static fixKeyName(key) {
+        if (this.isOperatorName(key)) { return key; }
+        if (this.isFullDocumentPrefixed(key)) { return key; }
+        return 'fullDocument.' + key;
+    }
+
+    static getEventPayload(change) {
+        return (change.fullDocument) ? change.fullDocument : change.documentKey;
+    }
+    static isOperatorName(str) { return str.charAt(0) === '$'; }
+
+    static isFullDocumentPrefixed(str) { return str.slice(0, 13) === 'fullDocument.'; }
+
+    static isOriginAllowed(origin, allowedOrigins) {
+        var canonicalOrigin = origin.toLowerCase();
+        if (!allowedOrigins || !Array.isArray(allowedOrigins)) { return false; }
+
+        return allowedOrigins.some(e =>
+            (e === '*' || e.toLowerCase() === canonicalOrigin));
+    }
 }
 
-Gling.prototype.createOptions = function (definition) {
-    return {
-        fullDocument: definition.fields ? 'updateLookup' : 'default'
-    };
-}
-
-Gling.prototype.fixKeyName = function (key) {
-    if (key.isOperatorName()) { return key; }
-    if (key.isFullDocumentPrefixed()) { return key; }
-    return 'fullDocument.' + key;
-}
-
-Gling.prototype.getEventPayload = function (change) {
-    return (change.fullDocument) ? change.fullDocument : change.documentKey;
-}
-
-String.prototype.isOperatorName = function () { return this.charAt(0) === '$'; }
-String.prototype.isFullDocumentPrefixed = function () { return this.slice(0, 13) === 'fullDocument.'; }
-String.prototype.isOriginAllowed = function (allowedOrigins) {
-    var canonicalOrigin = this.toLowerCase();
-    if (!allowedOrigins || !Array.isArray(allowedOrigins)) { return false; }
-
-    return allowedOrigins.some(e =>
-        (e === '*' || e.toLowerCase() === this));
-}
-
-module.exports = {
-    Gling: Gling, 
-    ClientManager: ClientManager, 
-    ChangeType: ChangeType
-};
+module.exports = Gling;
 
 
