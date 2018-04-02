@@ -22,7 +22,7 @@ Example notifications:
 Multiple topics can be defined. This allows you to define multiple discrete notifications, each with its own notification data and trigger.
 
 ### Push Delivery
-Notifications are pushed to the web page using web sockets. Web sockets can deliver more efficeient real time notifications and communication to the page without repeated polling or timer based requests from the browser.
+Notifications are pushed to the web page using web sockets. Web sockets can deliver more efficient real time notifications and communication to the page without repeated polling or timer based requests from the browser.
 
 ### Configuration Driven Subscription
 You define the triggering event, filter, and payload using declarations in configuration. The configuration allows you to control:
@@ -134,7 +134,7 @@ var webSocketServer = new WebSocketServer({
     autoAcceptConnections: false
 });
 ```
-Create a client manager using the configuration. Wire up the incoming Websocket requests to the client manager. The 
+Create a client manager using the configuration. Wire up the incoming WebSocket requests to the client manager. The 
 
 > ClientManager routes notifications to registered clients by the `topic` in the listener definition. This means that clients should open a socket for a specific `topic` and that topic should match one of the configured ones.
 
@@ -197,5 +197,3 @@ MongoDb 3.6 or above is required. MongoDB must be running a replica set. (Even i
 
 
 > This is an early-stage project. It has been developed against Node V8.8.1.
-
- 
