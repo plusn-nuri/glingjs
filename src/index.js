@@ -1,12 +1,13 @@
 'use strict';
 
-var Gling = require('./gling');
-var ClientManager = require('./clientManager');
-var ChangeType = require('./changeType');
-
+const Gling = require('./gling');
+const ClientManager = require('./clientManager');
+const ChangeType = require('./changeType');
+const WebSocketServerManager = require('./WebSocketServerManager');
 
 module.exports = {
     Gling: Gling,
     ClientManager: ClientManager,
-    ChangeType: ChangeType
+    ChangeType: ChangeType,
+    WebSocketServerManager: WebSocketServerManager
 };

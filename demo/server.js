@@ -2,15 +2,15 @@
 
 const config = require('./config');
 
-const { ClientManager, Gling, ChangeType } = require('../src');
+const { ClientManager, Gling, ChangeType, WebSocketServerManager } = require('../src/index');
 
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const WebSocketServer = require('websocket').server;
 
-// set up websocket
-var server = http.createServer((request, response) => {
+// set up http web server, any other UI you want.
+var httpServer = http.createServer((request, response) => {
     console.log('Request for ' + request.url);
 
     const fileName = path.join(__dirname, 'index.html');
@@ -20,41 +20,16 @@ var server = http.createServer((request, response) => {
     });
 });
 
-server.listen(8080, function (s) {
+httpServer.listen(8080, function (s) {
     console.log('Server is listening on port 8080');
 });
 
-var webSocketServer = new WebSocketServer({
-    httpServer: server,
-    autoAcceptConnections: false
-});
-
-var clientManager = new ClientManager(config);
-
-webSocketServer.on('request', (request) => {
-    const origin = (request.origin || request.host);
-    if (!ClientManager.isOriginAllowed(origin, config.allowedOrigins)) {
-        // Make sure we only accept requests from an allowed origin
-        request.reject();
-        console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
-        return;
-    }
-
-    const { topic, connection } = clientManager.registerClientConnection(request);
-
-    console.log(`Got request from ${connection.remoteAddress} for topic "${topic}".`);
-});
-
-var hook = (topic, payload) => {
-    console.log(`Broadcasting to clients of ${topic}`, payload);
-    clientManager.broadcast(topic, payload);
-}
-
-
-
+// set up Gling
 var gling = new Gling(config);
+var clientManager = new ClientManager(config);
+var webSocketServerManager = new WebSocketServerManager(httpServer, clientManager);
 
-gling.start(hook)
+gling.start((topic, payload) => clientManager.broadcast(topic, payload))
     .then(() => console.log('started..'))
     .catch(reason => {
         console.error(reason);
