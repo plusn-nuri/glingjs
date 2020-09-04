@@ -1,6 +1,6 @@
 {
   "name": "gling",
-  "version": "0.40.0",
+  "version": "0.40.1",
   "description": "The super easy way to make your website chime whenever something interesting happens.",
   "main": "src/index.js",
   "directories": {
