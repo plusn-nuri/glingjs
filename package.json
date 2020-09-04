@@ -16,11 +16,11 @@
   },
   "license": "MIT",
   "dependencies": {
-    "mongodb": "^3.0.1",
-    "websocket": "^1.0.25"
+    "mongodb": "^3.6.1",
+    "websocket": "^1.0.32"
   },
   "devDependencies": {
-    "jest": "^22.0.4"
+    "jest": "^26.4.2"
   },
   "keywords": [
     "gling",
